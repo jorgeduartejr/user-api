@@ -2,13 +2,13 @@ package handlers
 
 import (
     "context"
+    "time"
     "user-api/database"
     "user-api/models"
-    "time"
 
+    "github.com/gofiber/fiber/v2"
     "go.mongodb.org/mongo-driver/bson"
     "go.mongodb.org/mongo-driver/bson/primitive"
-    "github.com/gofiber/fiber/v2"
 )
 
 func GetUsers(c *fiber.Ctx) error {
@@ -34,7 +34,12 @@ func GetUsers(c *fiber.Ctx) error {
 func CreateUser(c *fiber.Ctx) error {
     var user models.User
     if err := c.BodyParser(&user); err != nil {
-        return c.Status(400).JSON(fiber.Map{"message": err.Error()})
+        return c.Status(400).JSON(fiber.Map{"message": "Invalid request body"})
+    }
+
+    // Validação dos campos obrigatórios
+    if user.Name == "" || user.Email == "" {
+        return c.Status(400).JSON(fiber.Map{"message": "Name and Email are required"})
     }
 
     user.ID = primitive.NewObjectID()

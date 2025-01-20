@@ -1,7 +1,7 @@
-// filepath: /home/jorgeduarte/user-api/tests/user_handler_test.go
 package tests
 
 import (
+    "bytes"
     "net/http"
     "testing"
     "user-api/database"
@@ -10,25 +10,36 @@ import (
     "github.com/gofiber/fiber/v2"
 )
 
-func TestGetUsers(t *testing.T) {
-    // Conectar ao banco de dados de teste
+func setupTestApp() *fiber.App {
+    app := fiber.New()
+    app.Get("/users", handlers.GetUsers)
+    app.Post("/users", handlers.CreateUser)
+    app.Put("/users/:id", handlers.UpdateUser)
+    app.Delete("/users/:id", handlers.DeleteUser)
+
+    database.ConnectTestDB()
+    return app
+}
+
+func TestCreateUserInvalidData(t *testing.T) {
     err := database.ConnectTestDB()
     if err != nil {
         t.Fatalf("Failed to connect to test database: %v", err)
     }
 
-    // Substituir a conexão do banco de dados pela de teste
     originalDB := database.DB
     database.DB = database.TestDB
     defer func() { database.DB = originalDB }()
 
-    app := fiber.New()
-    app.Get("/users", handlers.GetUsers)
+    app := setupTestApp()
 
-    req, _ := http.NewRequest("GET", "/users", nil)
+    invalidUserJSON := []byte(`{"name": "Test User"}`) // Missing email field
+
+    req, _ := http.NewRequest("POST", "/users", bytes.NewBuffer(invalidUserJSON))
+    req.Header.Set("Content-Type", "application/json")
     resp, _ := app.Test(req)
 
-    if resp.StatusCode != http.StatusOK {
-        t.Fatalf("Expected status code %d, got %d", http.StatusOK, resp.StatusCode)
+    if resp.StatusCode != http.StatusBadRequest {
+        t.Fatalf("Expected status code %d, got %d", http.StatusBadRequest, resp.StatusCode)
     }
 }
