@@ -1,0 +1,18 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API para gerenciamento de usuários",
+        "title": "User API",
+        "contact": {
+            "name": "Jorge Duarte",
+            "email": "jorge.duarte@example.com"
+        },
+        "license": {
+            "name": "MIT"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:3000",
+    "basePath": "/",
+    "paths": {}
+}

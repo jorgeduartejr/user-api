@@ -1,3 +1,14 @@
+// Register godoc
+// @Summary Registro de usuário
+// @Description Registra um novo usuário
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param user body models.User true "Detalhes do Usuário"
+// @Success 201 {object} fiber.Map
+// @Failure 400 {object} fiber.Map
+// @Failure 500 {object} fiber.Map
+// @Router /register [post]
 package handlers
 
 import (
@@ -38,6 +49,16 @@ func Register(c *fiber.Ctx) error {
 
     return c.Status(201).JSON(fiber.Map{"message": "User registered successfully"})
 }
+// Login godoc
+// @Summary Login de usuário
+// @Description Faz login de um usuário e retorna um token JWT
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param credentials body map[string]string true "Credenciais do Usuário"
+// @Success 200 {object} fiber.Map
+// @Failure 401 {object} fiber.Map
+// @Router /login [post]
 
 func Login(c *fiber.Ctx) error {
     var input models.User
