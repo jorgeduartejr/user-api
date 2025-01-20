@@ -43,3 +43,4 @@ func TestCreateUserInvalidData(t *testing.T) {
         t.Fatalf("Expected status code %d, got %d", http.StatusBadRequest, resp.StatusCode)
     }
 }
+
