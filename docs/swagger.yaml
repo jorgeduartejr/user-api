@@ -4,7 +4,7 @@ info:
   contact:
     email: jorge.duarte@example.com
     name: Jorge Duarte
-  description: API para gerenciamento de usuários
+  description: API for user management
   license:
     name: MIT
   title: User API

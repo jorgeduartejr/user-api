@@ -1,7 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "API para gerenciamento de usuários",
+        "description": "API for user management",
         "title": "User API",
         "contact": {
             "name": "Jorge Duarte",
