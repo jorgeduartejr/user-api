@@ -10,7 +10,72 @@ import (
     "go.mongodb.org/mongo-driver/bson/primitive"
     "go.mongodb.org/mongo-driver/mongo"
 )
+// @title User API
+// @version 1.0
+// @description This is a sample server for managing products.
+// @contact.name API Support
+// @contact.url http://www.example.com/support
+// @contact.email support@example.com
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+// @host localhost:3000
+// @BasePath /api/v1
 
+// @Summary List all products
+// @Description Get all products
+// @Tags products
+// @Accept json
+// @Produce json
+// @Success 200 {array} models.Product
+// @Failure 500 {object} fiber.Map
+// @Router /products [get]
+
+// @Summary Get a product
+// @Description Get a product by ID
+// @Tags products
+// @Accept json
+// @Produce json
+// @Param id path string true "Product ID"
+// @Success 200 {object} models.Product
+// @Failure 400 {object} fiber.Map
+// @Failure 404 {object} fiber.Map
+// @Router /products/{id} [get]
+
+// @Summary Create a new product
+// @Description Create a new product
+// @Tags products
+// @Accept json
+// @Produce json
+// @Param product body models.Product true "Product"
+// @Success 201 {object} models.Product
+// @Failure 400 {object} fiber.Map
+// @Failure 500 {object} fiber.Map
+// @Router /products [post]
+
+// @Summary Update a product
+// @Description Update a product by ID
+// @Tags products
+// @Accept json
+// @Produce json
+// @Param id path string true "Product ID"
+// @Param product body models.Product true "Product"
+// @Success 200 {object} fiber.Map
+// @Failure 400 {object} fiber.Map
+// @Failure 404 {object} fiber.Map
+// @Failure 500 {object} fiber.Map
+// @Router /products/{id} [put]
+
+// @Summary Delete a product
+// @Description Delete a product by ID
+// @Tags products
+// @Accept json
+// @Produce json
+// @Param id path string true "Product ID"
+// @Success 200 {object} fiber.Map
+// @Failure 400 {object} fiber.Map
+// @Failure 404 {object} fiber.Map
+// @Failure 500 {object} fiber.Map
+// @Router /products/{id} [delete]
 var productCollection *mongo.Collection
 
 func InitProductCollection(databaseName string) {
