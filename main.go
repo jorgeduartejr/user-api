@@ -11,9 +11,9 @@ import (
     _ "user-api/docs"            // Import necessário para o Swagger
 )
 
-// @title User API
+// @title Mini E-commerce API
 // @version 1.0
-// @description API for user management
+// @description API for a mini e-commerce
 // @contact.name Jorge Duarte
 // @contact.email jorge.duarte@example.com
 // @license.name MIT
@@ -39,13 +39,18 @@ func main() {
     // Inicializar a coleção de produtos
     handlers.InitProductCollection("userdb")
 
+    // Inicializar a coleção de carteiras
+    handlers.InitWalletCollection("userdb")
+
     // Configuração das rotas de usuários
     routes.UserRoutes(app)
 
     // Configuração das rotas de produtos
     routes.ProductRoutes(app)
 
+    // Configuração das rotas de carteiras
+    routes.WalletRoutes(app)
+
     // Inicializar o servidor
     log.Fatal(app.Listen(":3000"))
 }
-

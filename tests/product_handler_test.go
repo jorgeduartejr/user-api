@@ -1,39 +1,14 @@
 package tests
 
 import (
-    "user-api/database"
-    "user-api/handlers"
-    "github.com/gofiber/fiber/v2"
     "github.com/stretchr/testify/assert"
     "net/http"
     "net/http/httptest"
     "testing"
 )
 
-func setupApp() *fiber.App {
-    app := fiber.New()
-
-    // Conexão com o banco de dados de teste
-    err := database.ConnectTestDB()
-    if err != nil {
-        panic(err)
-    }
-
-    // Inicializar a coleção de produtos
-    handlers.InitProductCollection("testdb")
-
-    // Configuração das rotas de produtos
-    app.Get("/products", handlers.GetAllProducts)
-    app.Get("/products/:id", handlers.GetProduct)
-    app.Post("/products", handlers.CreateProduct)
-    app.Put("/products/:id", handlers.UpdateProduct)
-    app.Delete("/products/:id", handlers.DeleteProduct)
-
-    return app
-}
-
 func TestGetAllProducts(t *testing.T) {
-    app := setupApp()
+    app := SetupApp()
 
     req := httptest.NewRequest(http.MethodGet, "/products", nil)
     resp, _ := app.Test(req)
@@ -42,7 +17,7 @@ func TestGetAllProducts(t *testing.T) {
 }
 
 func TestCreateProduct(t *testing.T) {
-    app := setupApp()
+    app := SetupApp()
 
     req := httptest.NewRequest(http.MethodPost, "/products", nil)
     resp, _ := app.Test(req)
@@ -51,7 +26,7 @@ func TestCreateProduct(t *testing.T) {
 }
 
 func TestGetProduct(t *testing.T) {
-    app := setupApp()
+    app := SetupApp()
 
     req := httptest.NewRequest(http.MethodGet, "/products/123", nil)
     resp, _ := app.Test(req)
@@ -60,7 +35,7 @@ func TestGetProduct(t *testing.T) {
 }
 
 func TestUpdateProduct(t *testing.T) {
-    app := setupApp()
+    app := SetupApp()
 
     req := httptest.NewRequest(http.MethodPut, "/products/123", nil)
     resp, _ := app.Test(req)
@@ -69,7 +44,7 @@ func TestUpdateProduct(t *testing.T) {
 }
 
 func TestDeleteProduct(t *testing.T) {
-    app := setupApp()
+    app := SetupApp()
 
     req := httptest.NewRequest(http.MethodDelete, "/products/123", nil)
     resp, _ := app.Test(req)
@@ -78,7 +53,7 @@ func TestDeleteProduct(t *testing.T) {
 }
 
 func TestGetProductInvalidID(t *testing.T) {
-    app := setupApp()
+    app := SetupApp()
 
     req := httptest.NewRequest(http.MethodGet, "/products/invalid-id", nil)
     resp, _ := app.Test(req)
@@ -87,7 +62,7 @@ func TestGetProductInvalidID(t *testing.T) {
 }
 
 func TestUpdateProductInvalidID(t *testing.T) {
-    app := setupApp()
+    app := SetupApp()
 
     req := httptest.NewRequest(http.MethodPut, "/products/invalid-id", nil)
     resp, _ := app.Test(req)
@@ -96,7 +71,7 @@ func TestUpdateProductInvalidID(t *testing.T) {
 }
 
 func TestDeleteProductInvalidID(t *testing.T) {
-    app := setupApp()
+    app := SetupApp()
 
     req := httptest.NewRequest(http.MethodDelete, "/products/invalid-id", nil)
     resp, _ := app.Test(req)
@@ -105,7 +80,7 @@ func TestDeleteProductInvalidID(t *testing.T) {
 }
 
 func TestCreateProductInvalidData(t *testing.T) {
-    app := setupApp()
+    app := SetupApp()
 
     req := httptest.NewRequest(http.MethodPost, "/products", nil)
     resp, _ := app.Test(req)
@@ -114,7 +89,7 @@ func TestCreateProductInvalidData(t *testing.T) {
 }
 
 func TestUpdateProductInvalidData(t *testing.T) {
-    app := setupApp()
+    app := SetupApp()
 
     req := httptest.NewRequest(http.MethodPut, "/products/123", nil)
     resp, _ := app.Test(req)
@@ -123,7 +98,7 @@ func TestUpdateProductInvalidData(t *testing.T) {
 }
 
 func TestDeleteProductInvalidData(t *testing.T) {
-    app := setupApp()
+    app := SetupApp()
 
     req := httptest.NewRequest(http.MethodDelete, "/products/123", nil)
     resp, _ := app.Test(req)
@@ -131,3 +106,29 @@ func TestDeleteProductInvalidData(t *testing.T) {
     assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
 }
 
+func TestGetProductNotFound(t *testing.T) {
+    app := SetupApp()
+
+    req := httptest.NewRequest(http.MethodGet, "/products/123", nil)
+    resp, _ := app.Test(req)
+
+    assert.Equal(t, http.StatusNotFound, resp.StatusCode)
+}
+
+func TestUpdateProductNotFound(t *testing.T) {
+    app := SetupApp()
+
+    req := httptest.NewRequest(http.MethodPut, "/products/123", nil)
+    resp, _ := app.Test(req)
+
+    assert.Equal(t, http.StatusNotFound, resp.StatusCode)
+}
+
+func TestDeleteProductNotFound(t *testing.T) {
+    app := SetupApp()
+
+    req := httptest.NewRequest(http.MethodDelete, "/products/123", nil)
+    resp, _ := app.Test(req)
+
+    assert.Equal(t, http.StatusNotFound, resp.StatusCode)
+}
