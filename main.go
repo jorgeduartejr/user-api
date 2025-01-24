@@ -5,9 +5,9 @@ import (
     "user-api/database"
     "user-api/handlers"
     "user-api/routes"
-    "github.com/arsmn/fiber-swagger/v2" // Import do Fiber-Swagger
 
-    "github.com/gofiber/fiber/v2"// Import do Fiber-Swagger
+    "github.com/gofiber/fiber/v2"
+    "github.com/gofiber/swagger" // Import do Fiber-Swagger
     _ "user-api/docs"            // Import necessário para o Swagger
 )
 
@@ -37,7 +37,7 @@ func main() {
     }
 
     // Inicializar a coleção de produtos
-    handlers.InitProductCollection()
+    handlers.InitProductCollection("userdb")
 
     // Configuração das rotas de usuários
     routes.UserRoutes(app)
@@ -48,3 +48,4 @@ func main() {
     // Inicializar o servidor
     log.Fatal(app.Listen(":3000"))
 }
+

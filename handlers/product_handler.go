@@ -13,8 +13,8 @@ import (
 
 var productCollection *mongo.Collection
 
-func InitProductCollection() {
-    productCollection = database.GetCollection("userdb", "products")
+func InitProductCollection(databaseName string) {
+    productCollection = database.GetCollection(databaseName, "products")
 }
 
 // GetAllProducts lista todos os produtos
@@ -33,10 +33,13 @@ func GetAllProducts(c *fiber.Ctx) error {
 // GetProduct obtem um produto específico
 func GetProduct(c *fiber.Ctx) error {
     id := c.Params("id")
-    objID, _ := primitive.ObjectIDFromHex(id)
+    objID, err := primitive.ObjectIDFromHex(id)
+    if err != nil {
+        return c.Status(400).JSON(fiber.Map{"message": "Invalid ID"})
+    }
     var product models.Product
     if err := productCollection.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&product); err != nil {
-        return c.Status(500).JSON(fiber.Map{"message": err.Error()})
+        return c.Status(404).JSON(fiber.Map{"message": "Product not found"})
     }
     return c.JSON(product)
 }
@@ -51,20 +54,26 @@ func CreateProduct(c *fiber.Ctx) error {
     if _, err := productCollection.InsertOne(context.Background(), product); err != nil {
         return c.Status(500).JSON(fiber.Map{"message": err.Error()})
     }
-    return c.JSON(product)
+    return c.Status(201).JSON(product)
 }
 
 // UpdateProduct atualiza um produto
 func UpdateProduct(c *fiber.Ctx) error {
     id := c.Params("id")
-    objID, _ := primitive.ObjectIDFromHex(id)
+    objID, err := primitive.ObjectIDFromHex(id)
+    if err != nil {
+        return c.Status(400).JSON(fiber.Map{"message": "Invalid ID"})
+    }
     var newProduct models.Product
     if err := c.BodyParser(&newProduct); err != nil {
         return c.Status(400).JSON(fiber.Map{"message": err.Error()})
     }
-    _, err := productCollection.UpdateOne(context.Background(), bson.M{"_id": objID}, bson.M{"$set": newProduct})
+    result, err := productCollection.UpdateOne(context.Background(), bson.M{"_id": objID}, bson.M{"$set": newProduct})
     if err != nil {
         return c.Status(500).JSON(fiber.Map{"message": err.Error()})
+    }
+    if result.MatchedCount == 0 {
+        return c.Status(404).JSON(fiber.Map{"message": "Product not found"})
     }
     return c.JSON(fiber.Map{"message": "Product successfully updated"})
 }
@@ -72,10 +81,16 @@ func UpdateProduct(c *fiber.Ctx) error {
 // DeleteProduct exclui um produto
 func DeleteProduct(c *fiber.Ctx) error {
     id := c.Params("id")
-    objID, _ := primitive.ObjectIDFromHex(id)
-    _, err := productCollection.DeleteOne(context.Background(), bson.M{"_id": objID})
+    objID, err := primitive.ObjectIDFromHex(id)
+    if err != nil {
+        return c.Status(400).JSON(fiber.Map{"message": "Invalid ID"})
+    }
+    result, err := productCollection.DeleteOne(context.Background(), bson.M{"_id": objID})
     if err != nil {
         return c.Status(500).JSON(fiber.Map{"message": err.Error()})
+    }
+    if result.DeletedCount == 0 {
+        return c.Status(404).JSON(fiber.Map{"message": "Product not found"})
     }
     return c.JSON(fiber.Map{"message": "Product successfully deleted"})
 }

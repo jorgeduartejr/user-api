@@ -9,6 +9,7 @@ import (
     "go.mongodb.org/mongo-driver/mongo/options"
 )
 
+var Client *mongo.Client
 var DB *mongo.Database
 var TestDB *mongo.Database
 
@@ -27,6 +28,7 @@ func Connect() error {
         return err
     }
 
+    Client = client
     DB = client.Database("userdb")
     log.Println("Connected to MongoDB!")
     return nil
@@ -47,6 +49,7 @@ func ConnectTestDB() error {
         return err
     }
 
+    Client = client
     TestDB = client.Database("testdb")
     log.Println("Connected to Test MongoDB!")
     return nil
