@@ -11,6 +11,26 @@ import (
     "go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// @title User API
+// @version 1.0
+// @description This is a sample server for managing users.
+// @host localhost:3000
+// @BasePath /
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+
+// GetUsers godoc
+// @Summary Get all users
+// @Description Get all users
+// @Tags users
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {array} models.User
+// @Failure 500 {object} fiber.Map
+// @Router /users [get]
 func GetUsers(c *fiber.Ctx) error {
     var users []models.User
     collection := database.DB.Collection("users")
@@ -31,6 +51,17 @@ func GetUsers(c *fiber.Ctx) error {
     return c.JSON(users)
 }
 
+// CreateUser godoc
+// @Summary Create a new user
+// @Description Create a new user
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param user body models.User true "User"
+// @Success 201 {object} models.User
+// @Failure 400 {object} fiber.Map
+// @Failure 500 {object} fiber.Map
+// @Router /users [post]
 func CreateUser(c *fiber.Ctx) error {
     var user models.User
     if err := c.BodyParser(&user); err != nil {
@@ -54,6 +85,19 @@ func CreateUser(c *fiber.Ctx) error {
     return c.Status(201).JSON(user)
 }
 
+// UpdateUser godoc
+// @Summary Update an existing user
+// @Description Update an existing user
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Param user body models.User true "User"
+// @Security BearerAuth
+// @Success 200 {object} models.User
+// @Failure 400 {object} fiber.Map
+// @Failure 500 {object} fiber.Map
+// @Router /users/{id} [put]
 func UpdateUser(c *fiber.Ctx) error {
     id := c.Params("id")
     userId, err := primitive.ObjectIDFromHex(id)
@@ -78,6 +122,18 @@ func UpdateUser(c *fiber.Ctx) error {
     return c.JSON(user)
 }
 
+// DeleteUser godoc
+// @Summary Delete a user
+// @Description Delete a user
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Security BearerAuth
+// @Success 204
+// @Failure 400 {object} fiber.Map
+// @Failure 500 {object} fiber.Map
+// @Router /users/{id} [delete]
 func DeleteUser(c *fiber.Ctx) error {
     id := c.Params("id")
     objectId, err := primitive.ObjectIDFromHex(id)
