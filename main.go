@@ -1,14 +1,16 @@
 package main
 
 import (
-    "log"
-    "user-api/database"
-    "user-api/handlers"
-    "user-api/routes"
+	"log"
+	"user-api/config"
+	"user-api/database"
+	_ "user-api/docs" // Import necessário para o Swagger
+	"user-api/handlers"
+	"user-api/repository"
+	"user-api/routes"
 
-    "github.com/gofiber/fiber/v2"
-    "github.com/gofiber/swagger" // Import do Fiber-Swagger
-    _ "user-api/docs"            // Import necessário para o Swagger
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/swagger" // Import do Fiber-Swagger
 )
 
 // @title Mini E-commerce API
@@ -20,41 +22,44 @@ import (
 // @host localhost:3000
 // @BasePath /
 func main() {
-    app := fiber.New()
+	app := fiber.New()
 
-    // Rota para acessar o Swagger
-    app.Get("/swagger/*", swagger.HandlerDefault)
+	// Rota para acessar o Swagger
+	app.Get("/swagger/*", swagger.HandlerDefault)
 
-    // Testando outra rota
-    app.Get("/test", func(c *fiber.Ctx) error {
-        return c.SendString("API funcionando!")
-    })
-    // Rota de boas-vindas
-    app.Get("/", func(c *fiber.Ctx) error {
-        return c.SendString("User API - Bem-vindo à API de Usuários, Produtos e Carteiras!")
-    })
+	// Testando outra rota
+	app.Get("/test", func(c *fiber.Ctx) error {
+		return c.SendString("API funcionando!")
+	})
+	// Rota de boas-vindas
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.SendString("User API - Bem-vindo à API de Usuários, Produtos e Carteiras!")
+	})
 
-    // Conexão com o banco de dados
-    err := database.Connect()
-    if err != nil {
-        log.Fatalf("Failed to connect to the database: %v", err)
-    }
+	cfg := config.LoadConfig()
 
-    // Inicializar a coleção de produtos
-    handlers.InitProductCollection("userdb")
+	var repo repository.Repository
 
-    // Inicializar a coleção de carteiras
-    handlers.InitWalletCollection("userdb")
+	if cfg.UseMongoDB {
+		// Tenta conectar ao MongoDB
+		err := database.Connect()
+		if err != nil {
+			log.Printf("Warning: Failed to connect to MongoDB: %v", err)
+			log.Println("Falling back to in-memory storage")
+			repo = repository.NewMemoryRepository()
+		} else {
+			repo = database.NewMongoRepository(database.DB)
+		}
+	} else {
+		log.Println("Using in-memory storage")
+		repo = repository.NewMemoryRepository()
+	}
 
-    // Configuração das rotas de usuários
-    routes.UserRoutes(app)
+	// Inicializa os handlers com o repositório
+	handlers.InitHandlers(repo)
 
-    // Configuração das rotas de produtos
-    routes.ProductRoutes(app)
+	// Configura as rotas
+	routes.SetupRoutes(app)
 
-    // Configuração das rotas de carteiras
-    routes.WalletRoutes(app)
-
-    // Inicializar o servidor
-    log.Fatal(app.Listen(":3000"))
+	log.Fatal(app.Listen(":3000"))
 }

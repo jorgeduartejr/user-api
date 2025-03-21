@@ -1,34 +1,46 @@
-# Use a imagem base do Golang
-FROM golang:1.20-alpine AS builder
+# Use the base image for Golang
+FROM golang:1.22-alpine AS builder
 
-# Defina o diretório de trabalho dentro do container
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copie go.mod e go.sum (se existirem)
+# Copy go.mod and go.sum (if they exist)
 COPY go.mod go.sum* ./
 
-# Baixe as dependências
+# Download dependencies
 RUN go mod download
 
-# Copie o restante do código da aplicação
+# Copy the rest of the application code
 COPY . .
 
-# Compile a aplicação
+# Build the application
 RUN CGO_ENABLED=0 GOOS=linux go build -o user-api .
 
-# Use uma imagem mínima para a execução
+# Use a minimal image for execution
 FROM alpine:latest
 
-# Instale certificados para HTTPS
+# Install certificates for HTTPS
 RUN apk --no-cache add ca-certificates
 
 WORKDIR /root/
 
-# Copie o binário compilado da etapa anterior
+# Copy the compiled binary from the previous stage
 COPY --from=builder /app/user-api .
 
-# Exponha a porta que a aplicação usa
+# OpenShift runs containers with a random UID, so we need to fix permissions
+RUN chown -R 1001:0 /root && \
+    chmod -R g=u /root
+
+# Use non-root user
+USER 1001
+
+# Expose the port used by the application
 EXPOSE 3000
 
-# Comando para iniciar a aplicação
+# Define default environment variables
+ENV USE_MONGODB="false"
+ENV MONGODB_URI="mongodb://localhost:27017"
+ENV DATABASE_NAME="userdb"
+
+# Command to start the application
 CMD ["./user-api"]
