@@ -41,6 +41,7 @@ EXPOSE 3000
 ENV USE_MONGODB="false"
 ENV MONGODB_URI="mongodb://localhost:27017"
 ENV DATABASE_NAME="userdb"
+ENV PORT="3000"
 
 # Command to start the application
 CMD ["./user-api"]
