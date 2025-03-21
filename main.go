@@ -29,6 +29,10 @@ func main() {
     app.Get("/test", func(c *fiber.Ctx) error {
         return c.SendString("API funcionando!")
     })
+    // Rota de boas-vindas
+    app.Get("/", func(c *fiber.Ctx) error {
+        return c.SendString("User API - Bem-vindo à API de Usuários, Produtos e Carteiras!")
+    })
 
     // Conexão com o banco de dados
     err := database.Connect()
